@@ -1,0 +1,132 @@
+
+ELIGE UN ALGORITMO PARA LANZAR: 
+1,Algoritmo 1-NN
+2,Algoritmo RELIEF
+3,Algoritmo LOCAL SEARCH
+4,Algoritmo GENETICO GENERACIONAL - BLX
+5,Algoritmo GENETICO GENERACIONAL - CA
+6,Algoritmo GENETICO ESTACIONARIO - BLX
+7,Algoritmo GENETICO ESTACIONARIO - CA
+8,Algoritmo MEMETICO GENERACIONAL cambio generacion completa - CA
+9,Algoritmo MEMETICO GENERACIONAL cambio solo un subconjunto - CA
+10,Algoritmo MEMETICO GENERACIONAL cambio los mejores - CA
+208 60
+__________________
+
+_____________________________________________________________
+_____________________________________________________________
+Tasa de clasificacion para datos train con respecto al test AMCA1 particion 0:80,7692
+Tiempo de ejecucion AMCA1: 25,9665
+
+Tasa de clasificacion para datos test con respecto al train AMCA1 particion 0:83,6538
+Tiempo de ejecucion AMCA1: 26,1925
+
+----------------------------------------------------------------------------
+Tasa de clasificacion para datos train con respecto al test AMCA1 particion 1:83,6538
+Tiempo de ejecucion AMCA1: 26,1684
+
+Tasa de clasificacion para datos test con respecto al train AMCA1 particion 1:87,5
+Tiempo de ejecucion AMCA1: 26,1436
+
+----------------------------------------------------------------------------
+Tasa de clasificacion para datos train con respecto al test AMCA1 particion 2:88,4615
+Tiempo de ejecucion AMCA1: 26,2537
+
+Tasa de clasificacion para datos test con respecto al train AMCA1 particion 2:80,7692
+Tiempo de ejecucion AMCA1: 26,1123
+
+----------------------------------------------------------------------------
+Tasa de clasificacion para datos train con respecto al test AMCA1 particion 3:87,5
+Tiempo de ejecucion AMCA1: 26,0284
+
+Tasa de clasificacion para datos test con respecto al train AMCA1 particion 3:78,8462
+Tiempo de ejecucion AMCA1: 26,1543
+
+----------------------------------------------------------------------------
+Tasa de clasificacion para datos train con respecto al test AMCA1 particion 4:85,5769
+Tiempo de ejecucion AMCA1: 26,0778
+
+Tasa de clasificacion para datos test con respecto al train AMCA1 particion 4:82,6923
+Tiempo de ejecucion AMCA1: 26,0793
+
+----------------------------------------------------------------------------
+TIEMPO MEDIO AMCA1 -------> 26,1177
+TASA MEDIA AMCA1 -------> 83,9423
+_____________________________________________________________
+_____________________________________________________________
+Tasa de clasificacion para datos train con respecto al test AMCA2 particion 0:77,8846
+Tiempo de ejecucion AMCA2: 24,8819
+
+Tasa de clasificacion para datos test con respecto al train AMCA2 particion 0:81,7308
+Tiempo de ejecucion AMCA2: 25,0304
+
+----------------------------------------------------------------------------
+Tasa de clasificacion para datos train con respecto al test AMCA2 particion 1:85,5769
+Tiempo de ejecucion AMCA2: 24,9416
+
+Tasa de clasificacion para datos test con respecto al train AMCA2 particion 1:85,5769
+Tiempo de ejecucion AMCA2: 25,0402
+
+----------------------------------------------------------------------------
+Tasa de clasificacion para datos train con respecto al test AMCA2 particion 2:87,5
+Tiempo de ejecucion AMCA2: 25,096
+
+Tasa de clasificacion para datos test con respecto al train AMCA2 particion 2:81,7308
+Tiempo de ejecucion AMCA2: 24,9592
+
+----------------------------------------------------------------------------
+Tasa de clasificacion para datos train con respecto al test AMCA2 particion 3:88,4615
+Tiempo de ejecucion AMCA2: 24,919
+
+Tasa de clasificacion para datos test con respecto al train AMCA2 particion 3:81,7308
+Tiempo de ejecucion AMCA2: 24,9958
+
+----------------------------------------------------------------------------
+Tasa de clasificacion para datos train con respecto al test AMCA2 particion 4:83,6538
+Tiempo de ejecucion AMCA2: 24,9826
+
+Tasa de clasificacion para datos test con respecto al train AMCA2 particion 4:84,6154
+Tiempo de ejecucion AMCA2: 24,9162
+
+----------------------------------------------------------------------------
+TIEMPO MEDIO AMCA2 -------> 24,9763
+TASA MEDIA AMCA2 -------> 83,8462
+_____________________________________________________________
+_____________________________________________________________
+Tasa de clasificacion para datos train con respecto al test AMCA3 particion 0:82,6923
+Tiempo de ejecucion AMCA3: 24,8985
+
+Tasa de clasificacion para datos test con respecto al train AMCA3 particion 0:81,7308
+Tiempo de ejecucion AMCA3: 25,1074
+
+----------------------------------------------------------------------------
+Tasa de clasificacion para datos train con respecto al test AMCA3 particion 1:85,5769
+Tiempo de ejecucion AMCA3: 24,9629
+
+Tasa de clasificacion para datos test con respecto al train AMCA3 particion 1:86,5385
+Tiempo de ejecucion AMCA3: 25,021
+
+----------------------------------------------------------------------------
+Tasa de clasificacion para datos train con respecto al test AMCA3 particion 2:86,5385
+Tiempo de ejecucion AMCA3: 25,1515
+
+Tasa de clasificacion para datos test con respecto al train AMCA3 particion 2:85,5769
+Tiempo de ejecucion AMCA3: 25,0037
+
+----------------------------------------------------------------------------
+Tasa de clasificacion para datos train con respecto al test AMCA3 particion 3:84,6154
+Tiempo de ejecucion AMCA3: 24,9261
+
+Tasa de clasificacion para datos test con respecto al train AMCA3 particion 3:80,7692
+Tiempo de ejecucion AMCA3: 25,0426
+
+----------------------------------------------------------------------------
+Tasa de clasificacion para datos train con respecto al test AMCA3 particion 4:82,6923
+Tiempo de ejecucion AMCA3: 24,9701
+
+Tasa de clasificacion para datos test con respecto al train AMCA3 particion 4:79,8077
+Tiempo de ejecucion AMCA3: 24,9418
+
+----------------------------------------------------------------------------
+TIEMPO MEDIO AMCA3 -------> 25,0026
+TASA MEDIA AMCA3 -------> 83,6538

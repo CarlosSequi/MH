@@ -1,0 +1,20 @@
+
+ELIGE UN ALGORITMO PARA LANZAR: 
+1,Algoritmo 1-NN
+2,Algoritmo RELIEF
+3,Algoritmo LOCAL SEARCH
+4,Algoritmo GENETICO GENERACIONAL - BLX
+5,Algoritmo GENETICO GENERACIONAL - CA
+6,Algoritmo GENETICO ESTACIONARIO - BLX
+7,Algoritmo GENETICO ESTACIONARIO - CA
+8,Algoritmo MEMETICO GENERACIONAL cambio generacion completa - CA
+9,Algoritmo MEMETICO GENERACIONAL cambio solo un subconjunto - CA
+10,Algoritmo MEMETICO GENERACIONAL cambio los mejores - CA
+569 30
+
+
+_____________________________________________________________
+_____________________________________________________________
+Tasa de clasificacion para datos train con respecto al test AMCA1 particion 0:92,9577
+Tiempo de ejecucion AMCA1: 99,183
+

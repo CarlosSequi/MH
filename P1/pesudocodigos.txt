@@ -1,0 +1,754 @@
+1NNClasiff:
+
+El objetivo del clasificador 1NN, tal como indica su nombre, es clasificar los elementos del conjunto de datos $T_1$ (Train, datos de entrenamiento), con respecto a los elementos del conjunto de datos $T_2$ (Test, los datos de evaluación), basándose siempre en el vecino más cercano, es decir, el que presente menor distancia Euclidea para cada uno de los elementos. De tal manera, un elemento i del conjunto de datos Train tomará el valor de la clase del vecino más cercano e del conjunto de datos Test. Tras clasificar el conjunto de datos Train al completo, calculamos la tasa de acierto teniendo en cuenta los datos verdaderos y la devolvemos.\\
+
+INICIO\\
+
+\hspace*{10mm}	Para cada elemento i de $T_1$\\
+\hspace*{10mm}	{\\
+\hspace*{20mm}		Para cada elemento e de $T_2$\\
+\hspace*{20mm}		{\\
+\hspace*{30mm}			si(i es distinto de e) //Leave one out\\
+\hspace*{30mm}			{\\
+\hspace*{40mm}				distanciaVecino = calcularDistancia(i,e);\\
+\hspace*{40mm}				si(distanciaVecino < minimaDistanciaActual)\\
+\hspace*{40mm}				{\\
+\hspace*{50mm}					vecinoMasCercano = e;\\
+\hspace*{50mm}					minimaDistanciaActual = distanciaVecino;\\
+\hspace*{40mm}				}\\
+\hspace*{30mm}			}\\
+\hspace*{20mm}		}\\
+\hspace*{20mm}		si(clase(vecinoMasCercano) == clase(i))\\
+\hspace*{20mm}		{\\
+\hspace*{30mm}			cantidadElementosBienClasificados++;\\
+\hspace*{20mm}		}\\
+\hspace*{20mm}	}\\
+
+//Calculamos la tasa de clasificación\\
+tasaClasificacion = 100*(cantidadElementosBienClasificados/Tamaño($T_1$))\\
+		
+Devolver tasaClasificacion;\\
+
+FIN\\
+
+____________________________
+
+CalculaDistancia:
+
+Método común que se encarga de calcular la distancia Euclidea entre un vecino A y un vecino B teniendo en cuenta la dimensión del vector de pesos W.
+En el código lo he desarrollado como un desenrollado de bucles con el fin de mejorar los tiempos
+de ejecución.
+
+INICIO
+
+	distancia = 0;
+	si(tamaño de W es impar)
+		distancia += distancia entre $A_0$ y $B_0$;
+	Para cada elemento de A y B
+		distancia += distancia euclidea entre $A_i$ y $B_i$;
+		distancia += distancia euclidea entre $A_{i+1}$ y $B_{i+1}$;
+
+FIN
+
+____________________________
+
+Local search:
+
+El principal objetivo del algoritmo de búsqueda local es explotar un reducido espacio de búsqueda con el fin de obtener máximos locales (la mejor solución del entorno de la solución actual). Para ello recibe un vector inicial de pesos ($W_{ini}$) y a partir de este va generando nuevos vecinos ($V_i$) con el fin de encontrar el mejor en dicho espacio de búsqueda. Mediante la función de clasificación 1NN ya descrita comprobamos sucesivamente si cada uno de los vecinos generados se comporta mejor que la solución actual($S_{act}$) mediante sus respectivas tasas de clasificacion: $T_{act}$ y $T_{v}$, en dicho caso, la solución actual es actualizada.
+\\
+La condición de parada consiste en generar en total 20*N vecinos (siendo i el vecino actual) o bien realizar 15000 evaluaciones con el clasificador 1NN.\\
+
+INICIO\\
+
+\hspace*{10mm}	inicializar($S_{act}$ = $W_{ini}$);\\
+\hspace*{20mm}	Mientras(i < 20*N  &&  i < 15000)\\
+\hspace*{30mm}		posModificar = número aleatorio;\\
+\hspace*{30mm}		$V_i$ = generarVecino($S_{act}$, posModificar);\\
+\hspace*{30mm}		$T_{v}$ = 1NN($V_{i}$);\\
+
+\hspace*{30mm}		si($T_{act}$ < $T_{v}$) //comparamos tasas\\
+
+\hspace*{40mm}			$S_{act}$ = $V_i$;\\
+\hspace*{40mm}			$T_{act}$ = $T_{v}$;\\
+	
+\hspace*{30mm}		sino, si(hemos generado el vecindario de $V_i$ entero)\\
+		
+\hspace*{40mm}			//continuamos generando nuevos vecinos, poniendo el \\
+\hspace*{40mm}			//contador de posiciones modificadas a 0;\\
+
+\hspace*{10mm}	FIN(2)\\
+
+FIN(1)\\
+
+________________________________
+
+GenerarVecino:
+
+La generación de un nuevo vecino consiste en calcular un número aleatorio (posModificar) entre 0 y el número de genes del individuo W (siendo los genes la cantidad de elementos que tiene el vector de pesos) y dicha posición será relaculada mediante un número aleatorio generado por una distribución normal en el rango [0,1]. Para cumplir el rango, en caso de que el valor generado sobrepase las cotas, simplemente truncamos para que las cumpla.
+
+INICIO
+
+\hspace*{10mm}	numeroAleatorio = generarNumero;
+\hspace*{10mm}	normalizarNumAleatorio(rango[0,1]);
+\hspace*{10mm}	W[posModificar] = numAleatorio;
+
+FIN
+
+__________________________________
+
+RELIEF:
+
+Consiste en un algoritmo voraz de cálculo del vector de pesos para el APC, digamos, algoritmo de fuerza bruta. Partiendo de un vector de pesos inicializado a cero ($W_{ini}$), consiste en, para cada elemento $T_i$ del conjunto de datos Train ($T_1$), calcular su amigo $A_i$ y su enemigo $E_i$ del subconjunto Test ($T_2$) para, en función de ellos, calcular la i-ésima posición del vector de pesos.\\
+
+INICIO\\
+\\
+\hspace*{10mm}	W = inicializar($W_{ini}$);\\
+
+\hspace*{10mm}	Para cada elemento i de $T_1$\\
+\hspace*{20mm}		Para cada elemento e de $T_2$\\
+\hspace*{30mm}			si(i es distinto de e) //Leave one out\\
+\hspace*{40mm}				distanciaVecino = calcularDistancia(i,e);\\
+
+\hspace*{40mm}				si(calse(i) == clase(e)) //para los amigos\\
+\hspace*{50mm}					si(distanciaVecino < distanciaMinAmigo)\\
+\hspace*{60mm}						$A_i$ = e;\\
+\hspace*{60mm}						distanciaMinAmigo = distanciaVecino;\\
+\hspace*{40mm}				sino //para los enemigos\\
+\hspace*{50mm}					si(distanciaVecino < distanciaMinEnemigo)\\
+\hspace*{60mm}						$E_i$ = e;\\
+\hspace*{60mm}						distanciaMinEnemigo = distanciaVecino;\\
+\hspace*{20mm}		W[i] = actualizar peso teniendo en cuenta al amigo y al enemigo.\\
+\hspace*{20mm}		//en el código he creado un método aparte para actualizar W.\\
+
+\hspace*{10mm}	//Antes de devolver W lo normalizamos para que contenga valores en el \\
+\hspace*{10mm}	//intervalo [0,1].\\
+
+\hspace*{10mm}	devolver W;\\
+
+FIN\\
+
+
+_____________________________________
+
+AGG-BLX:
+
+Entramos en el bloque de algoritmos genéticos con el AGG-BLX, el cual es genético generacional basado en el operador de cruce BLX. El objetivo principal de los algoritmos genéticos es, a partir de una población(P) de individuos($P_i$) (soluciones iniciales) ir creando sucesivas generaciones de estos mediante operadores de cruce entre los individuos de las poblaciones actuales con el fin de obtener generaciones con mejores resultados a través de la evolución. Para escoger qué padres se cruzan utilizamos el torneo binario de modo que creamos una población de mejores padres a cruzar (PMP), los cuales serán los mejores. Además de los cruces entre individuos también se utiliza el operador de mutación para realizar pequeñas mejoras puntuales sobre individuos de manear azarosa.\\ Este en concreto, al ser generacional, a la hora de crear una nueva población, esta sustituirá al completo (salvo al mejor padre MP) a la población actual. Para evitar que el algoritmo retroceda en la búsqueda de la solución óptima, como ya he dicho, el mejor de los padres deberá estar presente en toda generación siempre y cuando sea mejor que el peor de los individuos de las sucesivas nuevas generaciones.
+Concretamente en este problema, se pide una población de individuos (tamaPoblacion) de tamaño 30, una probabilidad de cruce (probCruce) de 0.7 y una probabilidad de mutación (probMut) de 0.001. La condición de parada la situamos en 15000 evaluaciones con la función 1-NN. cantidadGenes es el parámetro que nos indica la cantidad de elementos de un vector de pesos (genes en un individuo)\\ 
+
+INICIO\\
+
+\hspace*{10mm} //Inicializamos la población con individuos con genes aleatorios\\
+\hspace*{10mm} //en el rango [0,1]\\
+\hspace*{10mm} Desde 0 hasta tamaPoblacion\\
+\hspace*{20mm} 		GenerarIndividuo(rand);\\
+
+\hspace*{10mm} //Procedemos a evaluar a los individuos de la población actual ($P_{act}$)\\
+\hspace*{10mm} //almacenando las tasas en un vector de tasas.\\
+\hspace*{10mm} Para cada elemento $P_i$ de $P_{act}$\\
+\hspace*{20mm} 		tasasPoblacionActual += 1-NN($P_i$);\\
+
+\hspace*{10mm} cantidadCruces = cantidadGenes / 2 * probCruce;
+
+\hspace*{10mm} Mientras(cantidadEvaluaciones1NN  < 15000)\\
+\hspace*{20mm} 		//calculamos el mejor de los padres (MP) fijándonos en el vector de tasas.\\
+\hspace*{20mm}		MP = calcularIndiceMejorPadre( tasasPoblacionActual );\\
+
+\hspace*{20mm} //Aplicamos el torneo binario para obtener la población de mejores\\
+\hspace*{20mm} //padres (PMP)\\
+\hspace*{20mm} //con torneos entre padres escogidos de forma aleatoria y teniendo  \\
+\hspace*{20mm} //en cuenta las tasas\\
+\hspace*{20mm} PMP = torneoBinario(tasasPoblacionActual)\\
+
+\hspace*{20mm} //creamos la nueva generación de individuos a partir de los mejores padres\\
+\hspace*{20mm} Para (cada pareja ($P_i$,$P_{i+1}$) de padres calculada en el torneo binario)\\
+\hspace*{30mm} 		parHijos = operadorCruceBLX($P_i$,$P_{i+1}$);\\
+\hspace*{30mm}		nuevaPoblacion.introducir(parHijos);\\
+
+\hspace*{20mm} //Rellenamos la poblacion con el resto de mejores padres \\
+\hspace*{20mm} //que no se hayan cruzado\\
+\hspace*{20mm} Mientras (no se haya completado la nueva población)\\
+\hspace*{30mm} 		nuevaPoblacion.introducir(PMP[i])\\
+\hspace*{30mm}		//con el fin de detectar si se ha perdido al mejor padre:\\
+\hspace*{30mm}		si(i == MP)\\
+\hspace*{40mm}			mejorPadrePerdido = false;\\
+
+\hspace*{20mm}	//Procedemos a realizar la mutación\\
+\hspace*{20mm}	cantidadMutaciones = probMut * tamaPoblacion * cantidadGenes;\\
+\hspace*{20mm}  //como solo sale un individuo a mutar no aplicamos un bucle\\
+\hspace*{20mm}	individuoAMutar = rand()\%tamaPoblacion;\\
+\hspace*{20mm}	genAMutar = rand\%cantidadGenes;\\
+\hspace*{20mm}	Poblacion[individuoAMutar] = generarVecino($P_{[individuoAMutar]}$)\\
+
+\hspace*{20mm} //Procedemos a evaluar a los individuos de la nueva población ($P_{nueva}$)\\
+\hspace*{20mm} //almacenando las tasas en un vector de tasas de la nueva población.\\
+\hspace*{20mm} Para cada elemento $P_i$ de $P_{nueva}$\\
+\hspace*{30mm} 		tasasPoblacionNueva += 1-NN($P_i$);\\
+
+\hspace*{20mm}	//cogemos al mejor padre de la población anterior para sustituirlo \\
+\hspace*{20mm}	//por el peor de la nueva generación de individuos.\\
+\hspace*{20mm}	si(mejorPadrePerdido)\\
+\hspace*{20mm}		$P_{nueva}$[peorIndividuo] = $P_{act}$[mejorIndividuo];\\
+
+\hspace*{20mm}	//actualizamos la población actual\\
+\hspace*{20mm}	$P_{act}$ = $P_{nueva}$\\
+\hspace*{20mm}	tasasPoblacionActual = tasasPoblacionNueva;\\
+
+\hspace*{10mm} FIN(2)\\
+
+\hspace*{10mm} //Calculamos el mejor de los individuos de la población final obtenida\\
+\hspace*{10mm}	MP = calcularIndiceMejorPadre( tasasPoblacionActual );\\
+
+\hspace*{10mm}	devolver MP;\\
+
+
+FIN(1)\\
+
+_________________________________________________________
+
+AGG-CA
+
+Continuamos con los algoritmos genéticos generacionales pero esta vez, cambiamos el operador de cruce BLX por el CA, de manera que ahora dos padres generarán tan solo un hijo, el cual surje mediante la media aritmética de los padres. El resto del algoritmo es completamente igual que el anteriormente descrito. Ahora en lugar de escoger a los 30 mejores padres como en el algoritmo anterior, escogemos a los 60 mejores padres, por el hecho ya comentado de que dos padres generan un solo hijo.
+
+INICIO\\
+
+\hspace*{10mm} //Inicializamos la población con individuos con genes aleatorios\\
+\hspace*{10mm} //en el rango [0,1]\\
+\hspace*{10mm} Desde 0 hasta tamaPoblacion\\
+\hspace*{20mm} 		GenerarIndividuo(rand);\\
+
+\hspace*{10mm} //Procedemos a evaluar a los individuos de la población actual ($P_{act}$)\\
+\hspace*{10mm} //almacenando las tasas en un vector de tasas.\\
+\hspace*{10mm} Para cada elemento $P_i$ de $P_{act}$\\
+\hspace*{20mm} 		tasasPoblacionActual += 1-NN($P_i$);\\
+
+\hspace*{10mm} cantidadCruces = cantidadGenes / 2 * probCruce;
+
+\hspace*{10mm} Mientras(cantidadEvaluaciones1NN  < 15000)\\
+\hspace*{20mm} 		//calculamos el mejor de los padres (MP) fijándonos en el vector de tasas.\\
+\hspace*{20mm}		MP = calcularIndiceMejorPadre( tasasPoblacionActual );\\
+
+\hspace*{20mm} //Aplicamos el torneo binario para obtener la población de mejores\\
+\hspace*{20mm} //padres (PMP)\\
+\hspace*{20mm} //con torneos entre padres escogidos de forma aleatoria y teniendo  \\
+\hspace*{20mm} //en cuenta las tasas. Esta vez cogemos 60 mejores padres.\\
+\hspace*{20mm} PMP = torneoBinario(tasasPoblacionActual)\\
+
+\hspace*{20mm} //creamos la nueva generación de individuos a partir de los mejores padres\\
+\hspace*{20mm} Para (cada pareja ($P_i$,$P_{i+1}$) de padres calculada en el torneo binario)\\
+\hspace*{30mm} 		nuevoHijo = operadorCruceBLX($P_i$,$P_{i+1}$);\\
+\hspace*{30mm}		nuevaPoblacion.introducir(nuevoHijo);\\
+
+\hspace*{20mm} //Rellenamos la poblacion con el resto de mejores padres \\
+\hspace*{20mm} //que no se hayan cruzado\\
+\hspace*{20mm} Mientras (no se haya completado la nueva población)\\
+\hspace*{30mm} 		nuevaPoblacion.introducir(PMP[i])\\
+\hspace*{30mm}		//con el fin de detectar si se ha perdido al mejor padre:\\
+\hspace*{30mm}		si(i == MP)\\
+\hspace*{40mm}			mejorPadrePerdido = false;\\
+
+\hspace*{20mm}	//Procedemos a realizar la mutación\\
+\hspace*{20mm}	cantidadMutaciones = probMut * tamaPoblacion * cantidadGenes;\\
+\hspace*{20mm}  //como solo sale un individuo a mutar no aplicamos un bucle\\
+\hspace*{20mm}	individuoAMutar = rand()\%tamaPoblacion;\\
+\hspace*{20mm}	genAMutar = rand\%cantidadGenes;\\
+\hspace*{20mm}	Poblacion[individuoAMutar] = generarVecino($P_{[individuoAMutar]}$)\\
+
+\hspace*{20mm} //Procedemos a evaluar a los individuos de la nueva población ($P_{nueva}$)\\
+\hspace*{20mm} //almacenando las tasas en un vector de tasas de la nueva población.\\
+\hspace*{20mm} Para cada elemento $P_i$ de $P_{nueva}$\\
+\hspace*{30mm} 		tasasPoblacionNueva += 1-NN($P_i$);\\
+
+\hspace*{20mm}	//cogemos al mejor padre de la población anterior para sustituirlo \\
+\hspace*{20mm}	//por el peor de la nueva generación de individuos.\\
+\hspace*{20mm}	si(mejorPadrePerdido)\\
+\hspace*{20mm}		$P_{nueva}$[peorIndividuo] = $P_{act}$[mejorIndividuo];\\
+
+\hspace*{20mm}	//actualizamos la población actual\\
+\hspace*{20mm}	$P_{act}$ = $P_{nueva}$\\
+\hspace*{20mm}	tasasPoblacionActual = tasasPoblacionNueva;\\
+
+\hspace*{10mm} FIN(2)\\
+
+\hspace*{10mm} //Calculamos el mejor de los individuos de la población final obtenida\\
+\hspace*{10mm}	MP = calcularIndiceMejorPadre( tasasPoblacionActual );\\
+
+\hspace*{10mm}	devolver MP;\\
+
+
+FIN(1)\\
+
+______________________________
+
+AGEBLX
+
+Cambiamos de tipo de algoritmo genético, pasando a los estacionarios, los cuales se basan en cambiar tan solo 2 individuos de la población actual por nuevos individuos (no como en los generacionales que sustituíamos a la poblacióni entera), solo en caso de que estos nuevos sean mejores que los dos peores de la población actual. Concretamente en este usaremos el operador de cruce BLX ya comentado anteriormente para generar nuevos individuos a partir de los mejores padres.\\
+
+INICIO\\
+
+\hspace*{10mm} //Inicializamos la población con individuos con genes aleatorios\\
+\hspace*{10mm} //en el rango [0,1]\\
+\hspace*{10mm} Desde 0 hasta tamaPoblacion\\
+\hspace*{20mm} 		GenerarIndividuo(rand);\\
+
+\hspace*{10mm} //Procedemos a evaluar a los individuos de la población actual ($P_{act}$)\\
+\hspace*{10mm} //almacenando las tasas en un vector de tasas.\\
+\hspace*{10mm} Para cada elemento $P_i$ de $P_{act}$\\
+\hspace*{20mm} 		tasasPoblacionActual += 1-NN($P_i$);\\
+
+\hspace*{10mm} cantidadCruces = cantidadGenes / 2 * probCruce;
+
+\hspace*{10mm} Mientras(cantidadEvaluaciones1NN  < 15000)\\
+\hspace*{20mm} 		//calculamos los dos peores padres $PP_1$ y $PP_2$\\
+\hspace*{20mm}		$PP_1$ = calcularIndicePeorPadre1 \\
+\hspace*{20mm}		$PP_2$ = calcularIndicePeorPadre2 \\
+
+\hspace*{20mm} //Aplicamos el torneo binario para obtener a los dos mejores\\
+\hspace*{20mm} //padres $MP_1$ y $MP_2$\\
+\hspace*{20mm} //con torneos entre padres escogidos de forma aleatoria y teniendo  \\
+\hspace*{20mm} //en cuenta las tasas\\
+\hspace*{20mm} torneoBinario(tasasPoblacionActual, $MP_1$, $MP_2$)\\
+
+\hspace*{20mm} //Calculamos los dos nuevos hijos a partir de los dos mejores padres\\
+\hspace*{20mm} parHijos = operadorCruceBLX($MP_1$, $MP_2$);\\
+
+\hspace*{20mm} //Comprobamos si los hijos son mejores que los peores padres. \\
+\hspace*{20mm} //Para ello comparamos el mejor de los hijos($H_1$) con el peor de los \\
+\hspace*{20mm} //dos peores padres($PP_2$), así nos aseguramos de que al menos halla un cambio.\\
+\hspace*{20mm} //(también comparamos el peor de los dos hijos con el mejor de los \\
+\hspace*{20mm} //dos peores padres).\\
+\hspace*{20mm} si (tasa($H_1$)  >  tasa($PP_2$))\\
+\hspace*{30mm}		poblacion[$PP_2$] = $H_1$\\
+\hspace*{20mm} si (tasa($H_2$)  >  tasa($PP_1$))\\
+\hspace*{30mm}		poblacion[$PP_1$] = $H_2$\\
+
+\hspace*{20mm}	//Procedemos a realizar la mutación\\
+\hspace*{20mm}	cantidadMutaciones = probMut * tamaPoblacion * cantidadGenes;\\
+\hspace*{20mm}  Desde 0 hasta cantidadMutaciones\\
+\hspace*{30mm}		individuoAMutar = rand()\%tamaPoblacion;\\
+\hspace*{30mm}		genAMutar = rand\%cantidadGenes;\\
+\hspace*{30mm}		Poblacion[individuoAMutar] = generarVecino($P_{[individuoAMutar]}$)\\
+\hspace*{30mm} 		//Evaluamos las tasas de los nuevos individuos($P_{nueva}$)\\
+\hspace*{30mm} 		tasasPoblacionActual[individuoAMutar] = 1-NN(IndividuoAMutar);\\
+\hspace*{20mm}	FIN(3)
+
+\hspace*{10mm} FIN(2)\\
+
+\hspace*{10mm} //Calculamos el mejor de los individuos de la población final obtenida\\
+\hspace*{10mm}	MP = calcularIndiceMejorPadre( tasasPoblacionActual );\\
+
+\hspace*{10mm}	devolver MP;\\
+
+FIN(1)\\
+
+
+_________________________
+
+AGECA
+
+Como segundo algoritmo estacionario, de la misma manera que para los generacionales, tenemos el correspondiente algoritmo genético con operador de cruce, el cual hace uso de cuatro mejores padres (calculados con el torneo binario) para generar dos nuevos hijos y proceder exactamente de la misma forma que en el anterior algoritmo estacionario a partir de ese momento.
+
+INICIO\\
+
+\hspace*{10mm} //Inicializamos la población con individuos con genes aleatorios\\
+\hspace*{10mm} //en el rango [0,1]\\
+\hspace*{10mm} Desde 0 hasta tamaPoblacion\\
+\hspace*{20mm} 		GenerarIndividuo(rand);\\
+
+\hspace*{10mm} //Procedemos a evaluar a los individuos de la población actual ($P_{act}$)\\
+\hspace*{10mm} //almacenando las tasas en un vector de tasas.\\
+\hspace*{10mm} Para cada elemento $P_i$ de $P_{act}$\\
+\hspace*{20mm} 		tasasPoblacionActual += 1-NN($P_i$);\\
+
+\hspace*{10mm} cantidadCruces = cantidadGenes / 2 * probCruce;
+
+\hspace*{10mm} Mientras(cantidadEvaluaciones1NN  < 15000)\\
+\hspace*{20mm} 		//calculamos los dos peores padres $PP_1$ y $PP_2$\\
+\hspace*{20mm}		$PP_1$ = calcularIndicePeorPadre1 \\
+\hspace*{20mm}		$PP_2$ = calcularIndicePeorPadre2 \\
+
+\hspace*{20mm} //Aplicamos el torneo binario para obtener a los cuatro mejores\\
+\hspace*{20mm} //padres esta vez $MP_1$, $MP_2$, $MP_3$ y $MP_4$\\
+\hspace*{20mm} //con torneos entre padres escogidos de forma aleatoria y teniendo  \\
+\hspace*{20mm} //en cuenta las tasas\\
+\hspace*{20mm} torneoBinario(tasasPoblacionActual, $MP_1$, $MP_2$)\\
+
+\hspace*{20mm} //Calculamos los dos nuevos hijos a partir de los cuatro mejores padres\\
+\hspace*{20mm} parHijos = operadorCruceBLX($MP_1$, $MP_2$, $MP_3$, $MP_4$);\\
+
+\hspace*{20mm} //Comprobamos si los hijos son mejores que los peores padres. \\
+\hspace*{20mm} //Para ello comparamos el mejor de los hijos($H_1$) con el peor de los \\
+\hspace*{20mm} //dos peores padres($PP_2$), así nos aseguramos de que al menos halla un cambio.\\
+\hspace*{20mm} //(también comparamos el peor de los dos hijos con el mejor de los \\
+\hspace*{20mm} //dos peores padres).\\
+\hspace*{20mm} si (tasa($H_1$)  >  tasa($PP_2$))\\
+\hspace*{30mm}		poblacion[$PP_2$] = $H_1$\\
+\hspace*{20mm} si (tasa($H_2$)  >  tasa($PP_1$))\\
+\hspace*{30mm}		poblacion[$PP_1$] = $H_2$\\
+
+\hspace*{20mm}	//Procedemos a realizar la mutación\\
+\hspace*{20mm}	cantidadMutaciones = probMut * tamaPoblacion * cantidadGenes;\\
+\hspace*{20mm}  Desde 0 hasta cantidadMutaciones\\
+\hspace*{30mm}		individuoAMutar = rand()\%tamaPoblacion;\\
+\hspace*{30mm}		genAMutar = rand\%cantidadGenes;\\
+\hspace*{30mm}		Poblacion[individuoAMutar] = generarVecino($P_{[individuoAMutar]}$)\\
+\hspace*{30mm} 		//Evaluamos las tasas de los nuevos individuos($P_{nueva}$)\\
+\hspace*{30mm} 		tasasPoblacionActual[individuoAMutar] = 1-NN(IndividuoAMutar);\\
+\hspace*{20mm}	FIN(3)
+
+\hspace*{10mm} FIN(2)\\
+
+\hspace*{10mm} //Calculamos el mejor de los individuos de la población final obtenida\\
+\hspace*{10mm}	MP = calcularIndiceMejorPadre( tasasPoblacionActual );\\
+
+\hspace*{10mm}	devolver MP;\\
+
+FIN(1)\\
+
+
+___________________
+
+AMCA1
+
+
+INICIO\\
+
+\hspace*{10mm} //Inicializamos la población con individuos con genes aleatorios\\
+\hspace*{10mm} //en el rango [0,1]\\
+\hspace*{10mm} Desde 0 hasta tamaPoblacion\\
+\hspace*{20mm} 		GenerarIndividuo(rand);\\
+
+\hspace*{10mm} //Procedemos a evaluar a los individuos de la población actual ($P_{act}$)\\
+\hspace*{10mm} //almacenando las tasas en un vector de tasas.\\
+\hspace*{10mm} Para cada elemento $P_i$ de $P_{act}$\\
+\hspace*{20mm} 		tasasPoblacionActual += 1-NN($P_i$);\\
+
+\hspace*{10mm} cantidadCruces = cantidadGenes / 2 * probCruce;
+
+\hspace*{10mm} Mientras(cantidadEvaluaciones1NN  < 15000)\\
+
+\hspace*{20mm} //llevamos la cuenta del número de generación\\
+\hspace*{20mm} generacion++;\\
+
+\hspace*{20mm} 		//calculamos el mejor de los padres (MP) fijándonos en el vector de tasas.\\
+\hspace*{20mm}		MP = calcularIndiceMejorPadre( tasasPoblacionActual );\\
+
+\hspace*{20mm} //Aplicamos el torneo binario para obtener la población de mejores\\
+\hspace*{20mm} //padres (PMP)\\
+\hspace*{20mm} //con torneos entre padres escogidos de forma aleatoria y teniendo  \\
+\hspace*{20mm} //en cuenta las tasas. Esta vez cogemos 60 mejores padres.\\
+\hspace*{20mm} PMP = torneoBinario(tasasPoblacionActual)\\
+
+\hspace*{20mm} //creamos la nueva generación de individuos a partir de los mejores padres\\
+\hspace*{20mm} Para (cada pareja ($P_i$,$P_{i+1}$) de padres calculada en el torneo binario)\\
+\hspace*{30mm} 		nuevoHijo = operadorCruceBLX($P_i$,$P_{i+1}$);\\
+\hspace*{30mm}		nuevaPoblacion.introducir(nuevoHijo);\\
+
+\hspace*{20mm} //Rellenamos la poblacion con el resto de mejores padres \\
+\hspace*{20mm} //que no se hayan cruzado\\
+\hspace*{20mm} Mientras (no se haya completado la nueva población)\\
+\hspace*{30mm} 		nuevaPoblacion.introducir(PMP[i])\\
+\hspace*{30mm}		//con el fin de detectar si se ha perdido al mejor padre:\\
+\hspace*{30mm}		si(i == MP)\\
+\hspace*{40mm}			mejorPadrePerdido = false;\\
+
+\hspace*{20mm}	//Procedemos a realizar la mutación\\
+\hspace*{20mm}	cantidadMutaciones = probMut * tamaPoblacion * cantidadGenes;\\
+\hspace*{20mm}  //como solo sale un individuo a mutar no aplicamos un bucle\\
+\hspace*{20mm}	individuoAMutar = rand()\%tamaPoblacion;\\
+\hspace*{20mm}	genAMutar = rand\%cantidadGenes;\\
+\hspace*{20mm}	Poblacion[individuoAMutar] = generarVecino($P_{[individuoAMutar]}$)\\
+
+\hspace*{20mm} //Procedemos a evaluar a los individuos de la nueva población ($P_{nueva}$)\\
+\hspace*{20mm} //almacenando las tasas en un vector de tasas de la nueva población.\\
+\hspace*{20mm} Para cada elemento $P_i$ de $P_{nueva}$\\
+\hspace*{30mm} 		tasasPoblacionNueva += 1-NN($P_i$);\\
+
+\hspace*{20mm} //cada 10 generaciones realizamos explotación con la búsqueda local\\
+\hspace*{20mm} si(generacion == 10)\\
+\hspace*{30mm}		generacion = 0;\\
+\hspace*{30mm}		para cada individuo $P_i$ de la población P\\
+\hspace*{40mm} 			$P_i$ = LocalSearch($P_i$)\\
+\hspace*{40mm}			cantidadEvaluaciones1NN += llamadas desde localSearch;\\
+\hspace*{30mm}		FIN(3)\\
+
+
+\hspace*{20mm}	//cogemos al mejor padre de la población anterior para sustituirlo \\
+\hspace*{20mm}	//por el peor de la nueva generación de individuos.\\
+\hspace*{20mm}	si(mejorPadrePerdido)\\
+\hspace*{20mm}		$P_{nueva}$[peorIndividuo] = $P_{act}$[mejorIndividuo];\\
+
+\hspace*{20mm}	//actualizamos la población actual\\
+\hspace*{20mm}	$P_{act}$ = $P_{nueva}$\\
+\hspace*{20mm}	tasasPoblacionActual = tasasPoblacionNueva;\\
+
+\hspace*{10mm} FIN(2)\\
+
+\hspace*{10mm} //Calculamos el mejor de los individuos de la población final obtenida\\
+\hspace*{10mm}	MP = calcularIndiceMejorPadre( tasasPoblacionActual );\\
+
+\hspace*{10mm}	devolver MP;\\
+
+
+FIN(1)\\
+
+_____________
+
+AMCA2
+
+\hspace*{10mm} //Inicializamos la población con individuos con genes aleatorios\\
+\hspace*{10mm} //en el rango [0,1]\\
+\hspace*{10mm} Desde 0 hasta tamaPoblacion\\
+\hspace*{20mm} 		GenerarIndividuo(rand);\\
+
+
+\hspace*{10mm} //nos creamos un vector con los indices de cada individuo de la poblacion
+\hspace*{10mm} //para usarlo al decidir a quien se le aplica la localSearch
+\hspace*{10mm} Mientras i=0  <  tamaPoblacion
+\hspace*{20mm}	vectorIndicesPoblacion.introducir(i);
+
+
+\hspace*{10mm} //Procedemos a evaluar a los individuos de la población actual ($P_{act}$)\\
+\hspace*{10mm} //almacenando las tasas en un vector de tasas.\\
+\hspace*{10mm} Para cada elemento $P_i$ de $P_{act}$\\
+\hspace*{20mm} 		tasasPoblacionActual += 1-NN($P_i$);\\
+
+\hspace*{10mm} cantidadCruces = cantidadGenes / 2 * probCruce;
+
+\hspace*{10mm} Mientras(cantidadEvaluaciones1NN  < 15000)\\
+
+\hspace*{20mm} //llevamos la cuenta del número de generación\\
+\hspace*{20mm} generacion++;\\
+
+\hspace*{20mm} 		//calculamos el mejor de los padres (MP) fijándonos en el vector de tasas.\\
+\hspace*{20mm}		MP = calcularIndiceMejorPadre( tasasPoblacionActual );\\
+
+\hspace*{20mm} //Aplicamos el torneo binario para obtener la población de mejores\\
+\hspace*{20mm} //padres (PMP)\\
+\hspace*{20mm} //con torneos entre padres escogidos de forma aleatoria y teniendo  \\
+\hspace*{20mm} //en cuenta las tasas. Esta vez cogemos 60 mejores padres.\\
+\hspace*{20mm} PMP = torneoBinario(tasasPoblacionActual)\\
+
+\hspace*{20mm} //creamos la nueva generación de individuos a partir de los mejores padres\\
+\hspace*{20mm} Para (cada pareja ($P_i$,$P_{i+1}$) de padres calculada en el torneo binario)\\
+\hspace*{30mm} 		nuevoHijo = operadorCruceBLX($P_i$,$P_{i+1}$);\\
+\hspace*{30mm}		nuevaPoblacion.introducir(nuevoHijo);\\
+
+\hspace*{20mm} //Rellenamos la poblacion con el resto de mejores padres \\
+\hspace*{20mm} //que no se hayan cruzado\\
+\hspace*{20mm} Mientras (no se haya completado la nueva población)\\
+\hspace*{30mm} 		nuevaPoblacion.introducir(PMP[i])\\
+\hspace*{30mm}		//con el fin de detectar si se ha perdido al mejor padre:\\
+\hspace*{30mm}		si(i == MP)\\
+\hspace*{40mm}			mejorPadrePerdido = false;\\
+
+\hspace*{20mm}	//Procedemos a realizar la mutación\\
+\hspace*{20mm}	cantidadMutaciones = probMut * tamaPoblacion * cantidadGenes;\\
+\hspace*{20mm}  //como solo sale un individuo a mutar no aplicamos un bucle\\
+\hspace*{20mm}	individuoAMutar = rand()\%tamaPoblacion;\\
+\hspace*{20mm}	genAMutar = rand\%cantidadGenes;\\
+\hspace*{20mm}	Poblacion[individuoAMutar] = generarVecino($P_{[individuoAMutar]}$)\\
+
+\hspace*{20mm} //Procedemos a evaluar a los individuos de la nueva población ($P_{nueva}$)\\
+\hspace*{20mm} //almacenando las tasas en un vector de tasas de la nueva población.\\
+\hspace*{20mm} Para cada elemento $P_i$ de $P_{nueva}$\\
+\hspace*{30mm} 		tasasPoblacionNueva += 1-NN($P_i$);\\
+
+\hspace*{20mm} //cada 10 generaciones realizamos explotación con la búsqueda local\\
+\hspace*{20mm} //sobre el 10\% de la población.
+\hspace*{20mm} si(generacion == 10)\\
+\hspace*{30mm}		shuffle(vectorIndicesPoblacion); //para coger individuos aleatorios
+\hspace*{30mm}		generacion = 0;\\
+\hspace*{30mm}		para cada individuo $P_i$ de la población P hasta llegar al 10\%\\
+\hspace*{40mm} 			$P_i$ = LocalSearch($P_i$)\\
+\hspace*{40mm}			cantidadEvaluaciones1NN += llamadas desde localSearch;\\
+\hspace*{30mm}		FIN(3)\\
+
+
+\hspace*{20mm}	//cogemos al mejor padre de la población anterior para sustituirlo \\
+\hspace*{20mm}	//por el peor de la nueva generación de individuos.\\
+\hspace*{20mm}	si(mejorPadrePerdido)\\
+\hspace*{20mm}		$P_{nueva}$[peorIndividuo] = $P_{act}$[mejorIndividuo];\\
+
+\hspace*{20mm}	//actualizamos la población actual\\
+\hspace*{20mm}	$P_{act}$ = $P_{nueva}$\\
+\hspace*{20mm}	tasasPoblacionActual = tasasPoblacionNueva;\\
+
+\hspace*{10mm} FIN(2)\\
+
+\hspace*{10mm} //Calculamos el mejor de los individuos de la población final obtenida\\
+\hspace*{10mm}	MP = calcularIndiceMejorPadre( tasasPoblacionActual );\\
+
+\hspace*{10mm}	devolver MP;\\
+
+
+FIN(1)\\
+
+_______________
+
+AMCA3
+
+\hspace*{10mm} //Inicializamos la población con individuos con genes aleatorios\\
+\hspace*{10mm} //en el rango [0,1]\\
+\hspace*{10mm} Desde 0 hasta tamaPoblacion\\
+\hspace*{20mm} 		GenerarIndividuo(rand);\\
+
+
+\hspace*{10mm} //nos creamos un vector con los indices de cada individuo de la poblacion
+\hspace*{10mm} //para usarlo al decidir a quien se le aplica la localSearch
+\hspace*{10mm} Mientras i=0  <  tamaPoblacion
+\hspace*{20mm}	vectorIndicesPoblacion.introducir(i);
+
+
+\hspace*{10mm} //Procedemos a evaluar a los individuos de la población actual ($P_{act}$)\\
+\hspace*{10mm} //almacenando las tasas en un vector de tasas.\\
+\hspace*{10mm} Para cada elemento $P_i$ de $P_{act}$\\
+\hspace*{20mm} 		tasasPoblacionActual += 1-NN($P_i$);\\
+
+\hspace*{10mm} cantidadCruces = cantidadGenes / 2 * probCruce;
+
+\hspace*{10mm} Mientras(cantidadEvaluaciones1NN  < 15000)\\
+
+\hspace*{20mm} //llevamos la cuenta del número de generación\\
+\hspace*{20mm} generacion++;\\
+
+\hspace*{20mm} 		//calculamos el mejor de los padres (MP) fijándonos en el vector de tasas.\\
+\hspace*{20mm}		MP = calcularIndiceMejorPadre( tasasPoblacionActual );\\
+
+\hspace*{20mm} //Aplicamos el torneo binario para obtener la población de mejores\\
+\hspace*{20mm} //padres (PMP)\\
+\hspace*{20mm} //con torneos entre padres escogidos de forma aleatoria y teniendo  \\
+\hspace*{20mm} //en cuenta las tasas. Esta vez cogemos 60 mejores padres.\\
+\hspace*{20mm} PMP = torneoBinario(tasasPoblacionActual)\\
+
+\hspace*{20mm} //creamos la nueva generación de individuos a partir de los mejores padres\\
+\hspace*{20mm} Para (cada pareja ($P_i$,$P_{i+1}$) de padres calculada en el torneo binario)\\
+\hspace*{30mm} 		nuevoHijo = operadorCruceBLX($P_i$,$P_{i+1}$);\\
+\hspace*{30mm}		nuevaPoblacion.introducir(nuevoHijo);\\
+
+\hspace*{20mm} //Rellenamos la poblacion con el resto de mejores padres \\
+\hspace*{20mm} //que no se hayan cruzado\\
+\hspace*{20mm} Mientras (no se haya completado la nueva población)\\
+\hspace*{30mm} 		nuevaPoblacion.introducir(PMP[i])\\
+\hspace*{30mm}		//con el fin de detectar si se ha perdido al mejor padre:\\
+\hspace*{30mm}		si(i == MP)\\
+\hspace*{40mm}			mejorPadrePerdido = false;\\
+
+\hspace*{20mm}	//Procedemos a realizar la mutación\\
+\hspace*{20mm}	cantidadMutaciones = probMut * tamaPoblacion * cantidadGenes;\\
+\hspace*{20mm}  //como solo sale un individuo a mutar no aplicamos un bucle\\
+\hspace*{20mm}	individuoAMutar = rand()\%tamaPoblacion;\\
+\hspace*{20mm}	genAMutar = rand\%cantidadGenes;\\
+\hspace*{20mm}	Poblacion[individuoAMutar] = generarVecino($P_{[individuoAMutar]}$)\\
+
+\hspace*{20mm} //Procedemos a evaluar a los individuos de la nueva población ($P_{nueva}$)\\
+\hspace*{20mm} //almacenando las tasas en un vector de tasas de la nueva población.\\
+\hspace*{20mm} Para cada elemento $P_i$ de $P_{nueva}$\\
+\hspace*{30mm} 		tasasPoblacionNueva += 1-NN($P_i$);\\
+\hspace*{30mm}		//para poder coger los mejores en la local search
+\hspace*{30mm}		poblacionOrdenadaPorTasas.introducir($P_i$, tasa($P_i$));
+
+\hspace*{20mm} //cada 10 generaciones realizamos explotación con la búsqueda local\\
+\hspace*{20mm} //sobre el 10\% de la población.
+\hspace*{20mm} si(generacion == 10)\\
+\hspace*{30mm}		shuffle(vectorIndicesPoblacion); //para coger individuos aleatorios
+\hspace*{30mm}		generacion = 0;\\
+\hspace*{30mm}		para cada individuo $P_i$ de la población ordenada por tasas \\
+\hspace*{30mm}		P hasta llegar al 10\%\\
+\hspace*{40mm} 			$P_i$ = LocalSearch($P_i$)\\
+\hspace*{40mm}			cantidadEvaluaciones1NN += llamadas desde localSearch;\\
+\hspace*{30mm}		FIN(3)\\
+
+
+\hspace*{20mm}	//cogemos al mejor padre de la población anterior para sustituirlo \\
+\hspace*{20mm}	//por el peor de la nueva generación de individuos.\\
+\hspace*{20mm}	si(mejorPadrePerdido)\\
+\hspace*{20mm}		$P_{nueva}$[peorIndividuo] = $P_{act}$[mejorIndividuo];\\
+
+\hspace*{20mm}	//actualizamos la población actual\\
+\hspace*{20mm}	$P_{act}$ = $P_{nueva}$\\
+\hspace*{20mm}	tasasPoblacionActual = tasasPoblacionNueva;\\
+
+\hspace*{10mm} FIN(2)\\
+
+\hspace*{10mm} //Calculamos el mejor de los individuos de la población final obtenida\\
+\hspace*{10mm}	MP = calcularIndiceMejorPadre( tasasPoblacionActual );\\
+
+\hspace*{10mm}	devolver MP;\\
+
+
+FIN(1)\\
+
+
+____________________
+
+generar solucion aleatoria
+
+INICIO\\
+
+\hspace*{10mm} Desde i = 0 hasta cantidadAtributos\\
+\hspace*{20mm}		num = generarNumeroAleatorio;\\
+\hspace*{20mm}		normalizar(num);\\
+\hspace*{20mm}		solucionInicial.insertar(num);\\
+\hspace*{10mm}	FIN(2)\\
+
+
+FIN(1)\\
+
+
+_____________________
+
+torneo binario
+
+INICIO
+
+\hspace*{10mm} Desde i = 0 hasta cantidadPadresAGenerar\\
+\hspace*{20mm}		padre1 = escogerPadreAleatorio;\\
+\hspace*{20mm}		padre2 = escogerPadreAleatorio;\\
+\hspace*{20mm}		Mientras (padre1 == padre2)\\
+\hspace*{30mm}			padre2 = escogerPadreAleatorio;\\
+\hspace*{20mm}		si(tasa(padre1) > tasa(padre2))\\
+\hspace*{30mm}			padresGanadores.insertar(padre1);\\
+\hspace*{20mm}		sino\\
+\hspace*{30mm}			padresGanadores.insertar(padre2);\\
+
+\hspace*{10mm}	Devolver padresGanadores;\\
+
+FIN(1)
+
+_____________
+
+cruce blx
+
+INICIO\\
+
+\hspace*{10mm} $MAX_{p1}$ = máximo elemento del padre 1\\
+\hspace*{10mm} $MAX_{p2}$ = máximo elemento del padre 2\\
+
+\hspace*{10mm} $MIN_{p1}$ = mínimo elemento del padre 1\\
+\hspace*{10mm} $MIN_{p2}$ = mínimo elemento del padre 2\\
+
+\hspace*{10mm} $MAX_{total}$ = máximo entre $MAX_{p1}$ y $MAX_{p2}$\\
+\hspace*{10mm} $MIN_{total}$ = mínimo entre $MIN_{p1}$ y $MIN_{p2}$\\
+
+\hspace*{10mm} \alpha = 0.3;\\
+
+\hspace*{10mm} I = $MAX_{total}$ - $MIN_{total}$;\\
+
+\hspace*{10mm} //Creamos los hijos en el intervalo siguiente:\\
+\hspace*{10mm} //[$MIN_{total}$-I*\alpha,$MAX_{total}$+I*\alpha]\\
+\hspace*{10mm} //En el código simplemente hacemos un bucle insertando cada\\
+\hspace*{10mm} //uno de los valores del nuevo vector de pesos.\\
+
+\hspace*{10mm} hijo1 = crearHijo(padre1, padre2);\\
+\hspace*{10mm} hijo2 = crearHijo(padre1, padre2);\\
+
+\hspace*{10mm} Devolver hijos;\\
+
+FIN(1)\\
+
+___________________
+
+cruce CA:
+
+\hspace*{10mm}Para cada valor de $P1_{j}$ y $P2_{j}$\\
+\hspace*{20mm}	hijo.insertar( $(P1_{j}$+$P2_{j}$) / 2 );\\

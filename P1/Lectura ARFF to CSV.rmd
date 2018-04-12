@@ -1,0 +1,105 @@
+---
+  title: "Metaheurísticas: Práctica 1"
+author: "Carlos Manuel Sequí Sánchez"
+output: pdf_document
+---
+
+```{r}
+###########################################################################
+###########################################################################
+###########################################################################
+###########################################################################
+#función para mover la columna class a la primera de todas
+movetoFirst <- function(data, move) 
+{
+  data[c(move, setdiff(names(data), move))]
+}
+
+
+###########################################################################
+###########################################################################
+###########################################################################
+###########################################################################
+
+#normalizamos lo valores en el rango [0,1]
+normalizeData = function(data)
+{
+  #obtenemos los valores máximos que puede tomar cada
+  #uno de los atributos
+  vectorMaximos = NA
+  for(i in 2:length(data[1,]))
+  {
+    vectorMaximos = cbind(vectorMaximos, max(data[,i]))
+  }
+  
+  #obtenemos los valores mínimos que puede tomar cada
+  #uno de los atributos
+  vectorMinimos = NA
+  for(i in 2:length(data[1,]))
+  {
+    vectorMinimos = cbind(vectorMinimos, min(data[,i]))
+  }
+  
+  #procedemos a normalizar los valores
+  for(i in 1:length(data[,1]))
+  {
+    for(j in 2:length(data[1,]))
+    {
+      data[i,j] = (data[i,j]-vectorMinimos[j])/(vectorMaximos[j]-vectorMinimos[j])
+    }
+  }
+  
+  data
+}
+
+###########################################################################
+###########################################################################
+###########################################################################
+###########################################################################
+
+
+#Lectura de datos del fichero wdbc.arff
+dataCancer = read.arff("workingDirectory/wdbc.arff")
+#ponemos la última columna de la base de datos en la primera para que 
+#todas las bases de datos puedan usar las mismas funciones.
+#(la columna de clase será la primera siempre)
+dataCancer = movetoFirst(dataCancer, c("class"))
+#normalizamos el conjunto de datos
+dataCancer = normalizeData(dataCancer)
+#lo pasamos a un fichero csv
+write.csv(dataCancer,"cancer.csv")
+
+#Lectura de datos del fichero sonar.arff
+dataSonar = read.arff("workingDirectory/sonar.arff")
+#ponemos la última columna de la base de datos en la primera para que 
+#todas las bases de datos puedan usar las mismas funciones.
+#(la columna de clase será la primera siempre)
+dataSonar = movetoFirst(dataSonar, c("Class"))
+#normalizamos el conjunto de datos
+dataSonar = normalizeData(dataSonar)
+#lo pasamos a un fichero csv
+write.csv(dataSonar,"sonar.csv")
+
+#Lectura de datos del fichero sonar.arff
+dataSpam = read.arff("workingDirectory/spambase-460.arff")
+#ponemos la última columna de la base de datos en la primera para que 
+#todas las bases de datos puedan usar las mismas funciones.
+#(la columna de clase será la primera siempre)
+dataSpam = movetoFirst(dataSpam, c("is_spam"))
+#normalizamos el conjunto de datos
+dataSpam = normalizeData(dataSpam)
+#lo pasamos a un fichero csv
+write.csv(dataSpam,"spam.csv")
+
+````
+
+  
+
+
+
+
+
+
+
+
+
